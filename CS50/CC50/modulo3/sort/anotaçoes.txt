@@ -1,0 +1,62 @@
+RANDOM
+5000
+
+sort1: 0,068s
+sort2: 0,029s
+sort3: 0,040s
+
+10000
+
+sort1: 0,185s
+sort2: 0,058s
+sort3: 0,124s
+
+50000
+
+sort1: 8,180s
+sort2: 2,600s
+sort3: 3,300s
+
+
+
+REVERSED
+5000
+
+sort1: 0,071s
+sort2: 0,021s
+sort3: 0,049s
+
+10000
+
+sort1: 0,246s
+sort2: 0,043s
+sort3: 0,149s
+
+50000
+
+sort1: 6,400s
+sort2: 2,300s
+sort3: 4,700s
+
+SORTED
+5000
+
+sort1: 0,026s
+sort2: 0,024s
+sort3: 0,048s
+
+10000
+
+sort1: 0,48s
+sort2: 0,45s
+sort3: 0,119s
+
+50000
+
+sort1: 1,140s
+sort2: 1,140s
+sort3: 2,980s
+
+
+
+

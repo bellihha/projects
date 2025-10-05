@@ -1,0 +1,17 @@
+dia 1:
+entendendo arrays e strings.
+
+objetivo: compreender o que são arrays e como as strings funcionam em C.
+
+atividades:
+- leia sobre arrays(conceito de coleção de elementos do mesmo tipo). ok
+- pratique declarando e acessando arrays inteiros e arrays de caracteres. ok
+- exemplo:
+...
+c
+
+int numeros[5] = {1, 2, 3, 4, 5};
+char palavra[] = "hello";
+...
+- entenda que uma string é um array de caracteres terminada pelo caractere especial \0. ok
+- pratique acessar caracteres individuais de uma string usando índices.

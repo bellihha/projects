@@ -1,0 +1,11 @@
+sort1 uses: bubble
+
+How do you know?: Even though it had good results, it took a while for the result to come out in sorted
+
+sort2 uses: merge
+
+How do you know?: has the best time results
+
+sort3 uses: selection
+
+How do you know?: why it has the highest real-time results
