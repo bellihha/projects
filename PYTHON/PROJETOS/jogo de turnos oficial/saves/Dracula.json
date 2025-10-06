@@ -1,0 +1,9 @@
+{
+    "name": "Dracula",
+    "life": 57,
+    "max damage": 20,
+    "bonus": 5,
+    "max heal": 12,
+    "potions": 3,
+    "wins": 3
+}
