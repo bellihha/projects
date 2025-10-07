@@ -1,9 +1,9 @@
 {
     "name": "Antonietta",
     "life": 84,
-    "max damage": 20,
+    "max_damage": 20,
     "bonus": 4,
-    "max heal": 12,
+    "max_heal": 12,
     "potions": 3,
     "wins": 1
 }

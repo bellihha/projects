@@ -4,6 +4,19 @@ import os
 from colorama import Fore, Style, init
 init(autoreset=True) 
 
+class Character:
+    def __init__ (self, name, life, max_damage=0, max_heal=0, bonus=0, potions=0, wins=0):
+        self.name = name
+        self.life = life
+        self.max_damage = max_damage
+        self.max_heal = max_heal
+        self.bonus = bonus
+        self.potions = potions
+        self.wins = wins
+    def is_alive(self):
+        return self.life > 0
+    def take_damage(self, damage):
+        self.life -= damage
 
 # Função para criar o personagem
 def create_character():
@@ -24,16 +37,8 @@ def create_character():
          else:
              item = input(f"{Fore.RED}Arma inválida!{Fore.RESET} Escolha entre Adaga, Espada longa ou Lança: ").lower().strip()
              continue
-    # Definição dos personagens e monstros como dicionários
-    new_player = {
-        "name": name,
-        "life": 100,
-        "max damage": 20,
-        "bonus": item,
-        "max heal": 12,
-        "potions": 3,
-        "wins": 0
-    }
+    # Criação do personagem
+    new_player = Character(name=name, life=100, max_damage=20, bonus=item, max_heal=12, potions=3, wins=0)
     return new_player
  
 # Função para rolar o dado
@@ -43,15 +48,10 @@ def dice_roll(dice, bonus=0):
     return final_roll
 
 
+# monstro
+player = None # Começamos com 'None' (nenhum)
+monster = Character(name="Lobisomem", life=45, max_damage=16)
 
-# Inicialização dos personagens
-player = {}
-# Inicialização do monstro
-monster = {
-        "name": "Lobisomem",
-        "life": 45,
-        "max damage": 16
-    }
 # Coloca a pasta de saves no mesmo local do script
 script_dir = os.path.dirname(__file__) 
 save_folder = os.path.join(script_dir, 'saves') 
@@ -100,15 +100,15 @@ else:
         
         # Carregamos o arquivo JSON que o jogador escolheu
         with open(full_path, 'r') as save_file:
-            player = json.load(save_file)
-        vitorias_atuais = player.get("vitorias", 0)
-        print(f"{Fore.RESET}Jogo de '{Fore.MAGENTA}{player['name']}{Fore.RESET}' carregado com sucesso! (Vitórias: {Fore.GREEN}{player['wins']}{Fore.RESET})")
+            dados_do_save = json.load(save_file)
+            player = Character(**dados_do_save)
+        print(f"{Fore.RESET}Jogo de '{Fore.MAGENTA}{player.name}{Fore.RESET}' carregado com sucesso! (Vitórias: {Fore.GREEN}{player.wins}{Fore.RESET})")
        
 
 
 # Rodadas do jogo
-while player["life"] > 0 and monster["life"] > 0:
-    mensagem_vida = f"Vida de(a) {Fore.MAGENTA}{player['name']}{Fore.RESET}: {Fore.LIGHTGREEN_EX}{player['life']}{Fore.RESET} | Vida do {monster['name']}: {Fore.LIGHTGREEN_EX}{monster['life']}{Fore.RESET}"
+while player.is_alive() and monster.is_alive():
+    mensagem_vida = f"Vida de(a) {Fore.MAGENTA}{player.name}{Fore.RESET}: {Fore.LIGHTGREEN_EX}{player.life}{Fore.RESET} | Vida do {monster.name}: {Fore.LIGHTGREEN_EX}{monster.life}{Fore.RESET}"
     print(" " * 73)
     print("-" * 73)
     print(f"{mensagem_vida:^73}")
@@ -121,18 +121,18 @@ while player["life"] > 0 and monster["life"] > 0:
     # Ataca 
     if action == "atacar":
         print("\n" * 12)
-        player_atack = dice_roll(player["max damage"], player["bonus"])
-        monster["life"] = monster["life"] - player_atack
+        player_atack = dice_roll(player.max_damage, player.bonus)
+        monster.take_damage(player_atack)
         print(f"Você atacou o monstro e causou {Fore.LIGHTRED_EX}{player_atack}{Fore.RESET} de dano com bonus da sua arma escolhida!")
     
     # Cura
     elif action == "curar":
         print("\n" * 12)
-        if player["potions"] > 0:
-            player["potions"] = player["potions"] - 1
-            player_heal = dice_roll(player["max heal"])
-            player["life"] = player["life"] + player_heal
-            print(f"Você se curou e recuperou {Fore.LIGHTYELLOW_EX}{player_heal}{Fore.RESET} de vida! Poções restantes: {Fore.YELLOW}{player['potions']}{Fore.RESET}")
+        if player.potions > 0:
+            player.potions = player.potions - 1
+            player_heal = dice_roll(player.max_heal)
+            player.life = player.life + player_heal
+            print(f"Você se curou e recuperou {Fore.LIGHTYELLOW_EX}{player_heal}{Fore.RESET} de vida! Poções restantes: {Fore.YELLOW}{player.potions}{Fore.RESET}")
         else:
             print(f"{Fore.RED}Você não tem mais poções de cura!{Fore.RESET}")
     
@@ -142,20 +142,20 @@ while player["life"] > 0 and monster["life"] > 0:
         continue
     
     # Ataque do monstro
-    if monster["life"] > 0:
-        monster_atack = dice_roll(monster["max damage"])
-        player["life"] = player["life"] - monster_atack
-        print(f"O {Fore.YELLOW}{monster['name']}{Fore.RESET} atacou você e causou {Fore.LIGHTRED_EX}{monster_atack}{Fore.RESET} de dano!")
+    if monster.is_alive():
+        monster_atack = dice_roll(monster.max_damage)
+        player.take_damage(monster_atack)
+        print(f"O {Fore.YELLOW}{monster.name}{Fore.RESET} atacou você e causou {Fore.LIGHTRED_EX}{monster_atack}{Fore.RESET} de dano!")
 
 # Resultado final
-if player["life"] <= 0:
+if not player.is_alive():
     mensagem_derrota = f"{Fore.LIGHTRED_EX}Você foi derrotado pelo monstro!{Fore.RESET}"
     print(" " * 73)
     print("-" * 73)
     print(f"{mensagem_derrota:^73}")
     print("-" * 73)
     print(" " * 73)
-    save_filename = f"saves/{player['name']}_savegame.json" 
+    save_filename = f"saves/{player.name}_savegame.json" 
     try:
         os.remove(save_filename)
         print(f"O arquivo de save '{os.path.basename(save_filename)}' foi apagado. {Fore.LIGHTRED_EX}Fim de jogo.{Fore.RESET}")
@@ -169,18 +169,17 @@ else:
      print(f"{mensagem_vitoria:^73}")
      print("-" * 73)
      print(" " * 73)
-     if "wins" not in player:
-         player["wins"] = 0
+     
     
-     player["wins"] += 1
-     print(f"{Fore.MAGENTA}{player['name']}{Fore.RESET} agora tem {Fore.GREEN}{player['wins']}{Fore.RESET} vitória(s).")
+     player.wins += 1
+     print(f"{Fore.MAGENTA}{player.name}{Fore.RESET} agora tem {Fore.GREEN}{player.wins}{Fore.RESET} vitória(s).")
      
      decisao = input(f"-- Deseja salvar seu progresso? {Fore.CYAN}(s/n){Fore.RESET}: ").lower().strip()
      if decisao == 's':
-         save_filename = os.path.join(save_folder, f'{player["name"]}.json')
+         save_filename = os.path.join(save_folder, f'{player.name}.json')
          
          with open(save_filename, 'w') as save_file:
-             json.dump(player, save_file, indent=4)
-         print(f"Progresso de {Fore.MAGENTA}{player['name']}{Fore.RESET} salvo com nome do arquivo '{os.path.basename(save_filename)}'.")
+             json.dump(player.__dict__, save_file, indent=4)
+         print(f"Progresso de {Fore.MAGENTA}{player.name}{Fore.RESET} salvo com nome do arquivo '{os.path.basename(save_filename)}'.")
      else:
          print("Progresso não salvo.")
